@@ -69,7 +69,7 @@ function RainyDay(config) {
 
 	this.rect = function(x, y, w, h, z, parent) {
 		if (this.canvas_ok) {
-			throw "Canvas has already been set up";
+			throw 'Canvas has already been set up';
 		}
 
 		this.cBack = document.createElement('canvas');
@@ -92,8 +92,9 @@ function RainyDay(config) {
 		this.dom_parent = document.createElement('div');
 		this.dom_parent.style.position = 'relative';
 		this.dom_parent.style.padding = 0;
-		this.dom_parent.style.top = x + "px";
-		this.dom_parent.style.left = y + "px";
+		this.dom_parent.style.top = x + 'px';
+		this.dom_parent.style.left = y + 'px';
+		this.dom_parent.className = "rd-div";
 		this.dom_parent.width = w;
 		this.dom_parent.height = h;
 		this.dom_parent.appendChild(this.cBack);
@@ -109,7 +110,7 @@ function RainyDay(config) {
 
 	this.cover = function() {
 		if (this.canvas_ok) {
-			throw "Canvas has already been set up";
+			throw 'Canvas has already been set up';
 		}
 
 		var canvas = document.createElement('canvas');
@@ -145,18 +146,17 @@ function RainyDay(config) {
 		return this;
 	};
 
-	this.resized = function(e) {
-		// TODO resize handler
-		console.log("resize event");
-	};
-
 	this.img = function(image, x, y, w, h) {
 		if (image instanceof Image) {
 			this.image = image;
 		} else {
-			this.image = document.getElementById(image);
-			if (!this.image) {
-				throw "Invalid <img> element id (" + image + ")";
+			if (image.substring(0, 4) === 'http') {
+				// TODO loading URLs
+			} else {
+				this.image = document.getElementById(image);
+				if (!this.image) {
+					throw 'Invalid <img> element id (' + image + ')';
+				}
 			}
 		}
 		this.image_ok = true;
@@ -165,32 +165,34 @@ function RainyDay(config) {
 
 	this.rain = function(presets, trail) {
 		if (!this.canvas_ok) {
-			throw "Canvas has not been configured correctly";
+			throw 'Canvas has not been configured correctly';
 		}
 		if (!this.image_ok) {
-			if (this.is_background) {
-				// TODO get body background image from DOM or CSS
-			} else {
-				throw "Source image has not been configured correctly";
-			}
+			throw 'Source image has not been configured correctly';
 		}
 
-		this.make_reflections();
+		this._reflections();
 
 		this.presets = presets;
 		this.trail = trail; // TODO get as function
 		return this.start();
 	};
 
+	/**
+	 * Starts or resumes the animation
+	 */
 	this.start = function() {
 		if (!this.paused) {
 			return;
 		}
 		this.paused = false;
-		window.requestAnimationFrame(this.animation.bind(this));
+		window.requestAnimationFrame(this._animation.bind(this));
 		return this;
 	};
 
+	/**
+	 * Pauses the animation
+	 */
 	this.pause = function() {
 		if (this.paused) {
 			return;
@@ -199,24 +201,31 @@ function RainyDay(config) {
 		return this;
 	};
 
+	/**
+	 * Stop the animation and destroy canvas objects
+	 */
 	this.stop = function() {
 		// TODO stop animation and free memory
 		this.paused = true;
 		return this;
 	};
 
-	this.destroy = function() {
-		// TODO stop and destroy the canvas and this object
-	};
-
-	this.animation = function() {
+	this._animation = function() {
 		// TODO animation frame
+
+
+
 		if (!this.paused) {
-			window.requestAnimationFrame(this.animation.bind(this));
+			window.requestAnimationFrame(this._animation.bind(this));
 		}
 	};
 
-	this.make_reflections = function() {
+	this._resized = function(e) {
+		// TODO resize handler
+		console.log('resize event');
+	};
+
+	this._reflections = function() {
 		this.background = document.createElement('canvas');
 		this.background.width = this.width;
 		this.background.height = this.height;
@@ -229,15 +238,16 @@ function RainyDay(config) {
 		context.clearRect(0, 0, this.width, this.height);
 
 		context.drawImage(this.image, 0, 0, this.width, this.height);
-		this.cBack.getContext('2d').drawImage(this.background, 0, 0, this.width, this.height);
 
 		context = this.clearbackground.getContext('2d');
 		context.clearRect(0, 0, this.width, this.height);
 		context.drawImage(this.image, 0, 0, this.width, this.height);
 
 		if (!isNaN(this.conf.blur) && this.conf.blur >= 1) {
-			this.stackBlurCanvasRGB(this.width, this.height, this.conf.blur);
+			this._stackBlurCanvasRGB(this.width, this.height, this.conf.blur);
 		}
+
+		this.cBack.getContext('2d').drawImage(this.background, 0, 0, this.width, this.height);
 
 		this.reflected = document.createElement('canvas');
 		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
@@ -245,7 +255,7 @@ function RainyDay(config) {
 		var ctx = this.reflected.getContext('2d');
 	};
 
-	this.stackBlurCanvasRGB = function(width, height, radius) {
+	this._stackBlurCanvasRGB = function(width, height, radius) {
 
 		function BlurStack() {
 			this.r = 0;

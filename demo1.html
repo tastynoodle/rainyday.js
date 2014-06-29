@@ -10,30 +10,47 @@
                 margin: 0;
                 padding: 0;
             }
-
-            img {
-                display: none;
+            .controls {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                z-index: 100;
+                background-color: #DDDDDD;
+                padding: 10px;
+                color: #FFFFFF;
+            }
+            a {
+                font-size: 20px;
+                color: #FFFFFF;
+                margin-right: 10px;
+                margin-left: 10px;
             }
         </style>
         <script src="rainyday-new.js"></script>
         <script>
+            var rd;
             function run() {
-                var image = document.getElementById('background');
+                var image = new Image();
                 image.onload = function() {
-                    //var engine = new RainyDay({
-                    //    image: this
-                    //});
                     //engine.rain([ [1, 2, 8000] ]);
                     //engine.rain([ [3, 3, 0.88], [5, 5, 0.9], [6, 2, 1] ], 100);
-                    new RainyDay().rect(20, 20, 300, 300).img(this).rain();
-
+                    rd = new RainyDay().rect(100, 100, 600, 300).img(this).rain();
                 };
                 image.crossOrigin = 'anonymous';
                 image.src = 'http://i.imgur.com/N7ETzFO.jpg';
             }
         </script>
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     </head>
     <body onload="run()">
-        <img id="background" alt="background" src="" />
+        <div class="controls">
+            <a href="javascript:rd.start();" title="Start animation"><i class="fa fa-play"></i></a>
+            <a href="javascript:rd.pause();" title="Pause animation"><i class="fa fa-pause"></i></a>
+            <a href="javascript:rd.stop();" title="Stop animation"><i class="fa fa-stop"></i></a>
+            <a href="javascript:rd.rect();" title="Resize to element"><i class="fa fa-compress"></i></a>
+            <a href="javascript:rd.background();" title="Set as background"><i class="fa fa-expand"></i></a>
+            <a href="javascript:rd.background();" title="Previous image"><i class="fa fa-caret-left"></i></a>
+            <a href="javascript:rd.background();" title="Next image"><i class="fa fa-caret-right"></i></a>
+        </div>
     </body>
 </html>

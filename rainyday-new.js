@@ -72,16 +72,35 @@ function RainyDay(config) {
 			throw "Canvas has already been set up";
 		}
 
-		var canvas = document.createElement('canvas');
-		canvas.style.position = 'absolute';
-		canvas.style.top = x;
-		canvas.style.left = y;
-		canvas.width = w;
-		canvas.height = h
+		this.cBack = document.createElement('canvas');
+		this.cBack.style.position = 'absolute';
+		this.cBack.style.top = 0;
+		this.cBack.style.left = 0;
+		this.cBack.style.zIndex = 0;
+		this.cBack.width = w;
+		this.cBack.height = h;
 
-		this.dom_parent = parent || document.getElementsByTagName('body')[0];
-		this.dom_parent.appendChild(canvas);
-		this.canvas = canvas;
+		this.cGlass = document.createElement('canvas');
+		this.cGlass.style.position = 'absolute';
+		this.cGlass.style.top = 0;
+		this.cGlass.style.left = 0;
+		this.cGlass.style.zIndex = 1;
+		this.cGlass.width = w;
+		this.cGlass.height = h;
+		this.context = this.cGlass.getContext('2d');
+
+		this.dom_parent = document.createElement('div');
+		this.dom_parent.style.position = 'relative';
+		this.dom_parent.style.padding = 0;
+		this.dom_parent.style.top = x + "px";
+		this.dom_parent.style.left = y + "px";
+		this.dom_parent.width = w;
+		this.dom_parent.height = h;
+		this.dom_parent.appendChild(this.cBack);
+		this.dom_parent.appendChild(this.cGlass);
+
+		(parent || document.getElementsByTagName('body')[0]).appendChild(this.dom_parent);
+
 		this.width = w;
 		this.height = h;
 		this.canvas_ok = true;
@@ -132,8 +151,14 @@ function RainyDay(config) {
 	};
 
 	this.img = function(image, x, y, w, h) {
-		// TODO
-		this.image = image;
+		if (image instanceof Image) {
+			this.image = image;
+		} else {
+			this.image = document.getElementById(image);
+			if (!this.image) {
+				throw "Invalid <img> element id (" + image + ")";
+			}
+		}
 		this.image_ok = true;
 		return this;
 	};
@@ -158,12 +183,18 @@ function RainyDay(config) {
 	};
 
 	this.start = function() {
+		if (!this.paused) {
+			return;
+		}
 		this.paused = false;
 		window.requestAnimationFrame(this.animation.bind(this));
 		return this;
 	};
 
 	this.pause = function() {
+		if (this.paused) {
+			return;
+		}
 		this.paused = true;
 		return this;
 	};
@@ -187,29 +218,30 @@ function RainyDay(config) {
 
 	this.make_reflections = function() {
 		this.background = document.createElement('canvas');
-		this.background.width = this.canvas.width;
-		this.background.height = this.canvas.height;
+		this.background.width = this.width;
+		this.background.height = this.height;
 
 		this.clearbackground = document.createElement('canvas');
-		this.clearbackground.width = this.canvas.width;
-		this.clearbackground.height = this.canvas.height;
+		this.clearbackground.width = this.width;
+		this.clearbackground.height = this.height;
 
 		var context = this.background.getContext('2d');
-		context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		context.clearRect(0, 0, this.width, this.height);
 
-		context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+		context.drawImage(this.image, 0, 0, this.width, this.height);
+		this.cBack.getContext('2d').drawImage(this.background, 0, 0, this.width, this.height);
 
 		context = this.clearbackground.getContext('2d');
-		context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+		context.clearRect(0, 0, this.width, this.height);
+		context.drawImage(this.image, 0, 0, this.width, this.height);
 
 		if (!isNaN(this.conf.blur) && this.conf.blur >= 1) {
-			this.stackBlurCanvasRGB(this.canvas.width, this.canvas.height, this.conf.blur);
+			this.stackBlurCanvasRGB(this.width, this.height, this.conf.blur);
 		}
 
 		this.reflected = document.createElement('canvas');
-		this.reflected.width = this.canvas.width / this.conf.reflectionScaledownFactor;
-		this.reflected.height = this.canvas.height / this.conf.reflectionScaledownFactor;
+		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
+		this.reflected.height = this.height / this.conf.reflectionScaledownFactor;
 		var ctx = this.reflected.getContext('2d');
 	};
 

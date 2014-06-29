@@ -34,16 +34,6 @@ RainyDay.prototype.checkSize = function() {
 };
 
 /**
- * Create the glass canvas.
- */
-RainyDay.prototype.prepareGlass = function() {
-	this.glass = document.createElement('canvas');
-	this.glass.width = this.canvas.width;
-	this.glass.height = this.canvas.height;
-	this.context = this.glass.getContext('2d');
-};
-
-/**
  * Main function for starting rain rendering.
  * @param presets list of presets to be applied
  * @param speed speed of the animation (if not provided or 0 static image will be generated)

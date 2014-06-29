@@ -1,8 +1,3 @@
-/**
- * Defines a new instance of the rainyday.js.
- * @param options options element with script parameters
- * @param canvas to be used (if not defined a new one will be created)
- */
 
 function RainyDay(options, canvas) {
 
@@ -12,34 +7,10 @@ function RainyDay(options, canvas) {
 
 	this.img = options.image;
 	var defaults = {
-		opacity: 1,
-		blur: 10,
-		crop: [0, 0, this.img.naturalWidth, this.img.naturalHeight],
-		enableSizeChange: true,
 		parentElement: document.getElementsByTagName('body')[0],
-		fps: 30,
-		fillStyle: '#8ED6FF',
-		enableCollisions: true,
-		gravityThreshold: 3,
-		gravityAngle: Math.PI / 2,
-		gravityAngleVariance: 0,
-		reflectionScaledownFactor: 5,
-		reflectionDropMappingWidth: 200,
-		reflectionDropMappingHeight: 200,
 		width: this.img.clientWidth,
-		height: this.img.clientHeight,
-		position: 'absolute',
-		top: 0,
-		left: 0
+		height: this.img.clientHeight
 	};
-
-	// add the defaults to options
-	for (var option in defaults) {
-		if (typeof options[option] === 'undefined') {
-			options[option] = defaults[option];
-		}
-	}
-	this.options = options;
 
 	this.drops = [];
 
@@ -63,12 +34,7 @@ function RainyDay(options, canvas) {
  * @returns HTMLElement the canvas
  */
 RainyDay.prototype.prepareCanvas = function() {
-	var canvas = document.createElement('canvas');
-	canvas.style.position = this.options.position;
-	canvas.style.top = this.options.top;
-	canvas.style.left = this.options.left;
-	canvas.width = this.options.width;
-	canvas.height = this.options.height;
+	
 	this.options.parentElement.appendChild(canvas);
 	if (this.options.enableSizeChange) {
 		this.setResizeHandler();

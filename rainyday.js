@@ -1,21 +1,7 @@
-
 function RainyDay(options, canvas) {
-
-	if (this === window) { //if *this* is the window object, start over with a *new* object
-		return new RainyDay(options);
-	}
-
-	this.img = options.image;
-	var defaults = {
-		parentElement: document.getElementsByTagName('body')[0],
-		width: this.img.clientWidth,
-		height: this.img.clientHeight
-	};
-
 	this.drops = [];
 
 	// prepare canvas elements
-	this.canvas = canvas || this.prepareCanvas();
 	this.prepareBackground();
 	this.prepareGlass();
 
@@ -24,31 +10,11 @@ function RainyDay(options, canvas) {
 	this.trail = this.TRAIL_DROPS;
 	this.gravity = this.GRAVITY_NON_LINEAR;
 	this.collision = this.COLLISION_SIMPLE;
-
-	// set polyfill of requestAnimationFrame
-	this.setRequestAnimFrame();
 }
 
-/**
- * Create the main canvas over a given element
- * @returns HTMLElement the canvas
- */
-RainyDay.prototype.prepareCanvas = function() {
-	
-	this.options.parentElement.appendChild(canvas);
-	if (this.options.enableSizeChange) {
-		this.setResizeHandler();
-	}
-	return canvas;
-};
-
 RainyDay.prototype.setResizeHandler = function() {
-	// use setInterval if oneresize event already use by other.
 	if (window.onresize !== null) {
 		window.setInterval(this.checkSize.bind(this), 100);
-	} else {
-		window.onresize = this.checkSize.bind(this);
-		window.onorientationchange = this.checkSize.bind(this);
 	}
 };
 
@@ -77,40 +43,6 @@ RainyDay.prototype.checkSize = function() {
 		this.canvas.offsetLeft = clientOffsetLeft;
 		this.canvas.offsetTop = clientOffsetTop;
 	}
-};
-
-/**
- * Start animation loop
- */
-RainyDay.prototype.animateDrops = function() {
-	if (this.addDropCallback) {
-		this.addDropCallback();
-	}
-	// |this.drops| array may be changed as we iterate over drops
-	var dropsClone = this.drops.slice();
-	var newDrops = [];
-	for (var i = 0; i < dropsClone.length; ++i) {
-		if (dropsClone[i].animate()) {
-			newDrops.push(dropsClone[i]);
-		}
-	}
-	this.drops = newDrops;
-	window.requestAnimFrame(this.animateDrops.bind(this));
-};
-
-/**
- * Polyfill for requestAnimationFrame
- */
-RainyDay.prototype.setRequestAnimFrame = function() {
-	var fps = this.options.fps;
-	window.requestAnimFrame = (function() {
-		return window.requestAnimationFrame ||
-			window.webkitRequestAnimationFrame ||
-			window.mozRequestAnimationFrame ||
-			function(callback) {
-				window.setTimeout(callback, 1000 / fps);
-			};
-	})();
 };
 
 /**
@@ -144,11 +76,6 @@ RainyDay.prototype.rain = function(presets, speed) {
 	if (this.reflection !== this.REFLECTION_NONE) {
 		this.prepareReflections();
 	}
-
-	this.animateDrops();
-
-	// animation
-	this.presets = presets;
 
 	this.PRIVATE_GRAVITY_FORCE_FACTOR_Y = (this.options.fps * 0.001) / 25;
 	this.PRIVATE_GRAVITY_FORCE_FACTOR_X = ((Math.PI / 2) - this.options.gravityAngle) * (this.options.fps * 0.001) / 50;

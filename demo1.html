@@ -18,18 +18,22 @@
         </style>
         <script src="rainyday-new.js"></script>
         <script>
-            /*function run() {
-                var image = document.getElementById('background');
+            function run() {
+                /*var image = document.getElementById('background');
                 image.onload = function() {
                     var engine = new RainyDay({
                         image: this
                     });
                     engine.rain([ [1, 2, 8000] ]);
                     engine.rain([ [3, 3, 0.88], [5, 5, 0.9], [6, 2, 1] ], 100);
+
+
                 };
                 image.crossOrigin = 'anonymous';
-                image.src = 'http://i.imgur.com/N7ETzFO.jpg';
-            }*/
+                image.src = 'http://i.imgur.com/N7ETzFO.jpg';*/
+                new RainyDay().rect(20, 20, 300, 300).img('http://i.imgur.com/xieew9').rain();
+                new RainyDay().cover().rain();
+            }
         </script>
     </head>
     <body>

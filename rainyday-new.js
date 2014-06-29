@@ -32,10 +32,10 @@
 
 /**
  * Defines a new instance of the rainyday.js.
- * @param settings settings element with script parameters
+ * @param config config element with script parameters
  */
-function RainyDay(settings) {
-	this.V = {
+function RainyDay(config) {
+	this.conf = {
 		opacity: 1,
 		blur: 10,
 		resize: true,
@@ -49,19 +49,19 @@ function RainyDay(settings) {
 		reflectionDropMappingHeight: 50
 	};
 
-	if (settings) {
-		for (var s in _defaults) {
-			if (typeof settings[s] === 'undefined') {
-				settings[s] = _defaults[s];
+	if (config) {
+		for (var s in this.conf) {
+			if (typeof config[s] !== 'undefined') {
+				this.conf[s] = config[s];
 			}
 		}
-		this.V = settings;
 	}
 	this.is_background = false;
 	this.canvas_ok = false;
 	this.image_ok = false;
+	this.paused = true;
 
-	this.rect = function(x, y, w, h, z) {
+	this.rect = function(x, y, w, h, z, parent) {
 		var canvas = document.createElement('canvas');
 		canvas.style.position = 'absolute';
 		canvas.style.top = x;
@@ -69,7 +69,8 @@ function RainyDay(settings) {
 		canvas.width = w;
 		canvas.height = h
 
-		this._parent = document.getElementsByTagName('body')[0];
+		this.dom_parent = parent || document.getElementsByTagName('body')[0];
+		this.dom_parent.appendChild(canvas);
 		this.canvas = canvas;
 		this.width = w;
 		this.height = h;
@@ -77,14 +78,42 @@ function RainyDay(settings) {
 		return this;
 	};
 
-	this.on_background = function() {
-		// TODO create canvas matching the screen w&h
+	this.cover = function() {
+		var canvas = document.createElement('canvas');
+
+		// TODO canvas location
+
+		this.canvas = canvas;
+		this.dom_parent = document.getElementsByTagName('body')[0];
+		this.dom_parent.appendChild(canvas);
 		this.canvas_ok = true;
 		this.is_background = true;
-		if (this.V.resize) {
-			// TODO set up resize handler
+
+		// handle resize events
+		if (this.conf.resize) {
+			if (window.attachEvent) {
+				window.attachEvent('onresize', function() {
+					this.resized();
+				}.bind(this));
+				window.attachEvent('onorientationchange', function() {
+					this.resized();
+				}.bind(this));
+			} else if (window.addEventListener) {
+				window.addEventListener('resize', function() {
+					this.resized();
+				}.bind(this), true);
+				window.addEventListener('orientationchange', function() {
+					this.resized();
+				}.bind(this), true);
+			} else {
+				this.do_size_check = true;
+			}
 		}
 		return this;
+	};
+
+	this.resized = function(e) {
+		// TODO resize handler
 	};
 
 	this.img = function(image, x, y, w, h) {
@@ -93,7 +122,7 @@ function RainyDay(settings) {
 		return this;
 	};
 
-	this.rain = function(presets, speed) {
+	this.rain = function(presets) {
 		if (!this.canvas_ok) {
 			throw "Canvas has not been configured correctly";
 		}
@@ -104,30 +133,32 @@ function RainyDay(settings) {
 				throw "Source image has not been configured correctly";
 			}
 		}
-		// TODO start loading presents
-		return this;
+		this.presets = presets;
+		return this.start();
 	};
 
 	this.start = function() {
-		// TODO start animation
+		this.paused = false;
+		window.requestAnimationFrame(this.animation.bind(this));
 		return this;
 	};
 
 	this.pause = function() {
-		// TODO pause animation
+		this.paused = true;
 		return this;
 	};
 
 	this.stop = function() {
 		// TODO stop animation and free memory
+		this.paused = true;
 		return this;
 	};
 
 	this.destroy = function() {
 		// TODO stop and destroy the canvas and this object
 	};
+
+	this.animation = function() {
+		// TODO animation frame
+	};
 };
-
-
-new RainyDay().rect(20, 20, 300, 300).img('http://i.imgur.com/xieew9').rain();
-new RainyDay().on_background().rain();

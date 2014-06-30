@@ -98,7 +98,7 @@ function RainyDay(config) {
 		this.domParent.style.padding = 0;
 		this.domParent.style.top = x + 'px';
 		this.domParent.style.left = y + 'px';
-		this.domParent.className = "rd-div";
+		this.domParent.className = 'rd-div';
 		this.domParent.width = w;
 		this.domParent.height = h;
 		this.domParent.appendChild(this.cBack);
@@ -150,12 +150,14 @@ function RainyDay(config) {
 		return this;
 	};
 
-	this.img = function(image, x, y, w, h) {
+	// TODO this.img = function(image, x, y, w, h) {
+	this.img = function(image) {
 		if (image instanceof Image) {
 			this.image = image;
 		} else {
 			if (image.substring(0, 4) === 'http') {
 				// TODO loading URLs
+				this.image = document.getElementById(image);
 			} else {
 				this.image = document.getElementById(image);
 				if (!this.image) {
@@ -429,7 +431,7 @@ function RainyDay(config) {
 		this.reflected = document.createElement('canvas');
 		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
 		this.reflected.height = this.height / this.conf.reflectionScaledownFactor;
-		var ctx = this.reflected.getContext('2d');
+		// var ctx = this.reflected.getContext('2d');
 		// TODO something seems to be missing here?
 	};
 

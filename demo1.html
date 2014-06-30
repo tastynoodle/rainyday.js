@@ -41,7 +41,7 @@
                 image.onload = function() {
                     //engine.rain([ [1, 2, 8000] ]);
                     //engine.rain([ [3, 3, 0.88], [5, 5, 0.9], [6, 2, 1] ], 100);
-                    rd = new RainyDay().rect(100, 100, 600, 300).img(this).rain();
+                    rd = new RainyDay().rect(10, 10, window.innerWidth / 2, window.innerHeight / 2).img(this).rain();
                 };
                 image.crossOrigin = 'anonymous';
                 image.src = 'http://i.imgur.com/N7ETzFO.jpg';
@@ -52,7 +52,7 @@
     </head>
     <body onload="run()">
         <div class="controls">
-            RainyDay.js<br/><hr/>
+            Demo: RainyDay.js<br/><hr/>
             <a href="javascript:rd.start();" title="Start animation"><i class="fa fa-play"></i></a>
             <a href="javascript:rd.pause();" title="Pause animation"><i class="fa fa-pause"></i></a>
             <a href="javascript:rd.stop();" title="Stop animation"><i class="fa fa-stop"></i></a>

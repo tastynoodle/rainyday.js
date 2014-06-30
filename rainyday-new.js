@@ -67,6 +67,8 @@ function RainyDay(config) {
 	this.image_ok = false;
 	this.paused = true;
 
+	this.drop = null;
+
 	this.rect = function(x, y, w, h, z, parent) {
 		if (this.canvas_ok) {
 			throw 'Canvas has already been set up';
@@ -175,6 +177,9 @@ function RainyDay(config) {
 
 		this.presets = presets;
 		this.trail = trail; // TODO get as function
+
+		this.drop = new Drop(0.5, 0, 3, 4);
+
 		return this.start();
 	};
 
@@ -210,6 +215,18 @@ function RainyDay(config) {
 		return this;
 	};
 
+	/**
+	 * To represent a single droplet
+	 */
+	function Drop(x, y, min, base) {
+		this.x = x;
+		this.y = y;
+		this.r = (Math.random() * base) + min;
+	}
+
+	/**
+	 * Render animation frame
+	 */
 	this._animation = function() {
 		// TODO animation frame
 
@@ -225,11 +242,66 @@ function RainyDay(config) {
 		console.log('resize event');
 	};
 
+	this._reflection = function(drop) {
+		var sx = Math.max((drop.x - this.conf.reflectionDropMappingWidth) / this.conf.reflectionScaledownFactor, 0);
+		var sy = Math.max((drop.y - this.conf.reflectionDropMappingHeight) / this.conf.reflectionScaledownFactor, 0);
+		var sw = this._positive_min(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
+		var sh = this._positive_min(this.conf.reflectionDropMappingHeight * 2 / this.conf.reflectionScaledownFactor, this.reflected.height - sy);
+		var dx = Math.max(drop.x - 1.1 * drop.r, 0);
+		var dy = Math.max(drop.y - 1.1 * drop.r, 0);
+		this.context.drawImage(this.reflected, sx, sy, sw, sh, dx, dy, drop.r * 2, drop.r * 2);
+	};
+
+	this._trail_drops = function(drop) {
+		if (!drop.trailY || drop.y - drop.trailY >= Math.random() * 100 * drop.r) {
+			drop.trailY = drop.y;
+			this.putDrop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
+		}
+	};
+
+	this._trail_smudge = function(drop) {
+		var y = drop.y - drop.r - 3;
+		var x = drop.x - drop.r / 2 + (Math.random() * 2);
+		if (y < 0 || x < 0) {
+			return;
+		}
+		this.context.drawImage(this.clearbackground, x, y, drop.r, 2, x, y, drop.r, 2);
+	};
+
+	this._positive_min = function(val1, val2) {
+		var result = 0;
+		if (val1 < val2) {
+			if (val1 <= 0) {
+				result = val2;
+			} else {
+				result = val1;
+			}
+		} else {
+			if (val2 <= 0) {
+				result = val1;
+			} else {
+				result = val2;
+			}
+		}
+		return result <= 0 ? 1 : result;
+	};
+
+	/**
+	 * Set up helper canvas objects for
+	 */
 	this._reflections = function() {
+		if (this.background) {
+			delete this.background;
+			this.background = null;
+		}
 		this.background = document.createElement('canvas');
 		this.background.width = this.width;
 		this.background.height = this.height;
 
+		if (this.clearbackground) {
+			delete this.clearbackground;
+			this.clearbackground = null;
+		}
 		this.clearbackground = document.createElement('canvas');
 		this.clearbackground.width = this.width;
 		this.clearbackground.height = this.height;
@@ -253,6 +325,7 @@ function RainyDay(config) {
 		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
 		this.reflected.height = this.height / this.conf.reflectionScaledownFactor;
 		var ctx = this.reflected.getContext('2d');
+		// TODO something seems to be missing here?
 	};
 
 	this._stackBlurCanvasRGB = function(width, height, radius) {
@@ -300,6 +373,10 @@ function RainyDay(config) {
 			332, 329, 326, 323, 320, 318, 315, 312, 310, 307, 304, 302, 299, 297, 294, 292,
 			289, 287, 285, 282, 280, 278, 275, 273, 271, 269, 267, 265, 263, 261, 259
 		];
+
+		// this should work on int values, not floats
+		width = Math.floor(width);
+		height = Math.floor(height);
 
 		radius |= 0;
 
@@ -511,4 +588,5 @@ function RainyDay(config) {
 		context.putImageData(imageData, 0, 0);
 
 	};
+
 };

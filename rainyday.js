@@ -1,9 +1,5 @@
 function RainyDay(options, canvas) {
 	this.drops = [];
-
-	// prepare canvas elements
-	this.prepareBackground();
-	this.prepareGlass();
 }
 
 /**
@@ -111,55 +107,6 @@ RainyDay.prototype.rain = function(presets, speed) {
 };
 
 /**
- * Adds a new raindrop to the animation.
- * @param drop drop object to be added to the animation
- */
-RainyDay.prototype.putDrop = function(drop) {
-	drop.draw();
-	if (this.gravity && drop.r > this.options.gravityThreshold) {
-		if (this.options.enableCollisions) {
-			this.matrix.update(drop);
-		}
-		this.drops.push(drop);
-	}
-};
-
-/**
- * Clear the drop and remove from the list if applicable.
- * @drop to be cleared
- * @force force removal from the list
- * result if true animation of this drop should be stopped
- */
-RainyDay.prototype.clearDrop = function(drop, force) {
-	var result = drop.clear(force);
-	if (result) {
-		var index = this.drops.indexOf(drop);
-		if (index >= 0) {
-			this.drops.splice(index, 1);
-		}
-	}
-	return result;
-};
-
-/**
- * Defines a new raindrop object.
- * @param rainyday reference to the parent object
- * @param centerX x position of the center of this drop
- * @param centerY y position of the center of this drop
- * @param min minimum size of a drop
- * @param base base value for randomizing drop size
- */
-
-function Drop(rainyday, centerX, centerY, min, base) {
-	this.x = Math.floor(centerX);
-	this.y = Math.floor(centerY);
-	this.r = (Math.random() * base) + min;
-	this.rainyday = rainyday;
-	this.context = rainyday.context;
-	this.reflection = rainyday.reflected;
-}
-
-/**
  * Draws a raindrop on canvas at the current position.
  */
 Drop.prototype.draw = function() {
@@ -235,121 +182,6 @@ Drop.prototype.animate = function() {
 		}
 	}
 	return !stopped || this.terminate;
-};
-
-/**
- * TRAIL function: trail of small drops (default)
- * @param drop raindrop object
- */
-RainyDay.prototype.TRAIL_DROPS = function(drop) {
-	if (!drop.trailY || drop.y - drop.trailY >= Math.random() * 100 * drop.r) {
-		drop.trailY = drop.y;
-		this.putDrop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
-	}
-};
-
-/**
- * TRAIL function: trail of unblurred image
- * @param drop raindrop object
- */
-RainyDay.prototype.TRAIL_SMUDGE = function(drop) {
-	var y = drop.y - drop.r - 3;
-	var x = drop.x - drop.r / 2 + (Math.random() * 2);
-	if (y < 0 || x < 0) {
-		return;
-	}
-	this.context.drawImage(this.clearbackground, x, y, drop.r, 2, x, y, drop.r, 2);
-};
-
-/**
- * GRAVITY function: non-linear gravity (default)
- * @param drop raindrop object
- * @returns Boolean true if the animation is stopped
- */
-RainyDay.prototype.GRAVITY_NON_LINEAR = function(drop) {
-	if (this.clearDrop(drop)) {
-		return true;
-	}
-
-	if (drop.collided) {
-		drop.collided = false;
-		drop.seed = Math.floor(drop.r * Math.random() * this.options.fps);
-		drop.skipping = false;
-		drop.slowing = false;
-	} else if (!drop.seed || drop.seed < 0) {
-		drop.seed = Math.floor(drop.r * Math.random() * this.options.fps);
-		drop.skipping = drop.skipping === false ? true : false;
-		drop.slowing = true;
-	}
-
-	drop.seed--;
-
-	if (drop.yspeed) {
-		if (drop.slowing) {
-			drop.yspeed /= 1.1;
-			drop.xspeed /= 1.1;
-			if (drop.yspeed < this.PRIVATE_GRAVITY_FORCE_FACTOR_Y) {
-				drop.slowing = false;
-			}
-
-		} else if (drop.skipping) {
-			drop.yspeed = this.PRIVATE_GRAVITY_FORCE_FACTOR_Y;
-			drop.xspeed = this.PRIVATE_GRAVITY_FORCE_FACTOR_X;
-		} else {
-			drop.yspeed += 1 * this.PRIVATE_GRAVITY_FORCE_FACTOR_Y * Math.floor(drop.r);
-			drop.xspeed += 1 * this.PRIVATE_GRAVITY_FORCE_FACTOR_X * Math.floor(drop.r);
-		}
-	} else {
-		drop.yspeed = this.PRIVATE_GRAVITY_FORCE_FACTOR_Y;
-		drop.xspeed = this.PRIVATE_GRAVITY_FORCE_FACTOR_X;
-	}
-
-	if (this.options.gravityAngleVariance !== 0) {
-		drop.xspeed += ((Math.random() * 2 - 1) * drop.yspeed * this.options.gravityAngleVariance);
-	}
-
-	drop.y += drop.yspeed;
-	drop.x += drop.xspeed;
-
-	drop.draw();
-	return false;
-};
-
-/**
- * Utility function to return positive min value
- * @param val1 first number
- * @param val2 second number
- */
-RainyDay.prototype.positiveMin = function(val1, val2) {
-	var result = 0;
-	if (val1 < val2) {
-		if (val1 <= 0) {
-			result = val2;
-		} else {
-			result = val1;
-		}
-	} else {
-		if (val2 <= 0) {
-			result = val1;
-		} else {
-			result = val2;
-		}
-	}
-	return result <= 0 ? 1 : result;
-};
-
-/**
- * REFLECTION function: miniature reflection (default)
- * @param drop raindrop object
- */
-RainyDay.prototype.REFLECTION_MINIATURE = function(drop) {
-	var sx = Math.max((drop.x - this.options.reflectionDropMappingWidth) / this.options.reflectionScaledownFactor, 0);
-	var sy = Math.max((drop.y - this.options.reflectionDropMappingHeight) / this.options.reflectionScaledownFactor, 0);
-	var sw = this.positiveMin(this.options.reflectionDropMappingWidth * 2 / this.options.reflectionScaledownFactor, this.reflected.width - sx);
-	var sh = this.positiveMin(this.options.reflectionDropMappingHeight * 2 / this.options.reflectionScaledownFactor, this.reflected.height - sy);
-	var dx = Math.max(drop.x - 1.1 * drop.r, 0);
-	var dy = Math.max(drop.y - 1.1 * drop.r, 0);
-	this.context.drawImage(this.reflected, sx, sy, sw, sh, dx, dy, drop.r * 2, drop.r * 2);
 };
 
 /**
@@ -496,38 +328,3 @@ CollisionMatrix.prototype.remove = function(drop) {
 	this.matrix[drop.gmx][drop.gmy].remove(drop);
 };
 
-/**
- * Defines a linked list item.
- */
-function DropItem(drop) {
-	this.drop = drop;
-	this.next = null;
-}
-
-/**
- * Adds the raindrop to the end of the list.
- * @param drop raindrop to be added
- */
-DropItem.prototype.add = function(drop) {
-	var item = this;
-	while (item.next != null) {
-		item = item.next;
-	}
-	item.next = new DropItem(drop);
-};
-
-/**
- * Removes the raindrop from the list.
- * @param drop raindrop to be removed
- */
-DropItem.prototype.remove = function(drop) {
-	var item = this;
-	var prevItem = null;
-	while (item.next != null) {
-		prevItem = item;
-		item = item.next;
-		if (item.drop.gid === drop.gid) {
-			prevItem.next = item.next;
-		}
-	}
-};

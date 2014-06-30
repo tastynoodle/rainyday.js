@@ -696,6 +696,6 @@ function RainyDay(config) {
 
 	};
 
-};
+}
 
 RainyDay.prototype.dummy = function() {};

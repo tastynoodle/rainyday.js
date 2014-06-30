@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -39,13 +39,13 @@
             function run() {
                 var image = new Image();
                 image.onload = function() {
-                    //engine.rain([ [1, 2, 8000] ]);
                     rd = new RainyDay().rect(10, 10, window.innerWidth / 2, window.innerHeight / 2).img(this).rain(
                         [
                             [3, 3, 0.88], 
                             [5, 5, 0.9], 
                             [6, 2, 1] 
-                        ]);
+                        ]
+                    );
                 };
                 image.crossOrigin = 'anonymous';
                 image.src = 'http://i.imgur.com/N7ETzFO.jpg';

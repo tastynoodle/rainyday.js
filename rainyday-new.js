@@ -64,15 +64,15 @@ function RainyDay(config) {
 			}
 		}
 	}
-	this.is_background = false;
-	this.canvas_ok = false;
-	this.image_ok = false;
+	this.isBackground = false;
+	this.canvasOk = false;
+	this.imageOk = false;
 	this.paused = true;
 
 	this.drop = null;
 
 	this.rect = function(x, y, w, h, z, parent) {
-		if (this.canvas_ok) {
+		if (this.canvasOk) {
 			throw 'Canvas has already been set up';
 		}
 
@@ -93,27 +93,27 @@ function RainyDay(config) {
 		this.cGlass.height = h;
 		this.context = this.cGlass.getContext('2d');
 
-		this.dom_parent = document.createElement('div');
-		this.dom_parent.style.position = 'relative';
-		this.dom_parent.style.padding = 0;
-		this.dom_parent.style.top = x + 'px';
-		this.dom_parent.style.left = y + 'px';
-		this.dom_parent.className = "rd-div";
-		this.dom_parent.width = w;
-		this.dom_parent.height = h;
-		this.dom_parent.appendChild(this.cBack);
-		this.dom_parent.appendChild(this.cGlass);
+		this.domParent = document.createElement('div');
+		this.domParent.style.position = 'relative';
+		this.domParent.style.padding = 0;
+		this.domParent.style.top = x + 'px';
+		this.domParent.style.left = y + 'px';
+		this.domParent.className = "rd-div";
+		this.domParent.width = w;
+		this.domParent.height = h;
+		this.domParent.appendChild(this.cBack);
+		this.domParent.appendChild(this.cGlass);
 
-		(parent || document.getElementsByTagName('body')[0]).appendChild(this.dom_parent);
+		(parent || document.getElementsByTagName('body')[0]).appendChild(this.domParent);
 
 		this.width = w;
 		this.height = h;
-		this.canvas_ok = true;
+		this.canvasOk = true;
 		return this;
 	};
 
 	this.cover = function() {
-		if (this.canvas_ok) {
+		if (this.canvasOk) {
 			throw 'Canvas has already been set up';
 		}
 
@@ -122,10 +122,10 @@ function RainyDay(config) {
 		// TODO canvas location
 
 		this.canvas = canvas;
-		this.dom_parent = document.getElementsByTagName('body')[0];
-		this.dom_parent.appendChild(canvas);
-		this.canvas_ok = true;
-		this.is_background = true;
+		this.domParent = document.getElementsByTagName('body')[0];
+		this.domParent.appendChild(canvas);
+		this.canvasOk = true;
+		this.isBackground = true;
 
 		// handle resize events
 		if (this.conf.resize) {
@@ -144,7 +144,7 @@ function RainyDay(config) {
 					this.resized();
 				}.bind(this), true);
 			} else {
-				this.do_size_check = true;
+				this.doSizeCheck = true;
 			}
 		}
 		return this;
@@ -163,15 +163,15 @@ function RainyDay(config) {
 				}
 			}
 		}
-		this.image_ok = true;
+		this.imageOk = true;
 		return this;
 	};
 
 	this.rain = function(presets, trail) {
-		if (!this.canvas_ok) {
+		if (!this.canvasOk) {
 			throw 'Canvas has not been configured correctly';
 		}
-		if (!this.image_ok) {
+		if (!this.imageOk) {
 			throw 'Source image has not been configured correctly';
 		}
 
@@ -339,7 +339,6 @@ function RainyDay(config) {
 
 	this._resized = function(e) {
 		// TODO resize handler
-		console.log('resize event');
 	};
 
 	this._reflection = function(drop) {
@@ -348,21 +347,21 @@ function RainyDay(config) {
 		}
 		var sx = Math.max((drop.x - this.conf.reflectionDropMappingWidth) / this.conf.reflectionScaledownFactor, 0);
 		var sy = Math.max((drop.y - this.conf.reflectionDropMappingHeight) / this.conf.reflectionScaledownFactor, 0);
-		var sw = this._positive_min(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
-		var sh = this._positive_min(this.conf.reflectionDropMappingHeight * 2 / this.conf.reflectionScaledownFactor, this.reflected.height - sy);
+		var sw = this.pPositiveMin(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
+		var sh = this.pPositiveMin(this.conf.reflectionDropMappingHeight * 2 / this.conf.reflectionScaledownFactor, this.reflected.height - sy);
 		var dx = Math.max(drop.x - 1.1 * drop.r, 0);
 		var dy = Math.max(drop.y - 1.1 * drop.r, 0);
 		this.context.drawImage(this.reflected, sx, sy, sw, sh, dx, dy, drop.r * 2, drop.r * 2);
 	};
 
-	this._trail_drops = function(drop) {
+	this.pTrailDrops = function(drop) {
 		if (!drop.trailY || drop.y - drop.trailY >= Math.random() * 100 * drop.r) {
 			drop.trailY = drop.y;
 			this._drop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
 		}
 	};
 
-	this._trail_smudge = function(drop) {
+	this.pTrailSmudge = function(drop) {
 		var y = drop.y - drop.r - 3;
 		var x = drop.x - drop.r / 2 + (Math.random() * 2);
 		if (y < 0 || x < 0) {
@@ -374,7 +373,7 @@ function RainyDay(config) {
 	/**
 	 * Helper function to return a positive min() of two values
 	 */
-	this._positive_min = function(val1, val2) {
+	this.pPositiveMin = function(val1, val2) {
 		var result = 0;
 		if (val1 < val2) {
 			if (val1 <= 0) {

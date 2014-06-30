@@ -15,11 +15,11 @@ For demos and more information see the [project page](http://maroslaw.github.io/
 rd = new RainyDay()
     .rect(10, 10, window.innerWidth / 2, window.innerHeight / 2) // Destination rectangle
     .img(image) // id of the image DOM element or image URL of the image to be used
-    .rain( // execute with presents
+    .rain( // execute with presets
     [
-        [3, 3, 0.88], 
-        [5, 5, 0.9], 
-        [6, 2, 1] 
+        [3, 3, 0.88], // add drops size 3+(0,3) with 88% probability
+        [5, 5, 0.9], // add drops size 5+(0,5) with 2% probability
+        [6, 2, 1] // add drops size 6+(0,2) with 10% probability
     ]
 );
 ```

@@ -30,28 +30,6 @@ RainyDay.prototype.checkSize = function() {
 };
 
 /**
- * Main function for starting rain rendering.
- * @param presets list of presets to be applied
- * @param speed speed of the animation (if not provided or 0 static image will be generated)
- */
-RainyDay.prototype.rain = function(presets, speed) {
-	// prepare canvas for drop reflections
-	if (this.reflection !== this.REFLECTION_NONE) {
-		this.prepareReflections();
-	}
-
-	this.PRIVATE_GRAVITY_FORCE_FACTOR_Y = (this.options.fps * 0.001) / 25;
-	this.PRIVATE_GRAVITY_FORCE_FACTOR_X = ((Math.PI / 2) - this.options.gravityAngle) * (this.options.fps * 0.001) / 50;
-
-	for (var i = 0; i < presets.length; i++) {
-		if (!presets[i][3]) {
-			presets[i][3] = -1;
-		}
-	}
-
-};
-
-/**
  * COLLISION function: default collision implementation
  * @param drop one of the drops colliding
  * @param collisions list of potential collisions

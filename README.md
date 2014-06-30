@@ -14,7 +14,7 @@ For demos and more information see the [project page](http://maroslaw.github.io/
 Simple use to render rain on a given rectangle based on a DOM element image:
 ```js
 rd = new RainyDay()
-    .rect(10, 10, window.innerWidth / 2, window.innerHeight / 2) // Destination rectangle
+    .rect(10, 10, window.innerWidth / 2, window.innerHeight / 2) // Destination rect
     .img(image) // id of the image DOM element or the DOM element itself
     .rain( // execute with presets
     [
@@ -42,15 +42,24 @@ In order to customize the configuration of the script pass an object overriding 
 rd = new RainyDay
     (
         {
-            opacity: 1,                         // Opacity of rain drops (= 1)
-            blur: 10,                           // Defines blur due to rain effect (= 10)
-            resize: true,
-            gravity: true,                      // Enable or disable gravity (= true)
-            reflections: true,                  // Enable or disable reclections inside droplets (= true)
-            fill: '#8ED6FF',                    // Fill style if reflections are disabled (= #8ED6FF)
-            collisions: true,                   // Enable or disable collisions (= true)
-            gravityThreshold: 3,                // Threshold for the gravity function (= 3)
-            gravityAngle: Math.PI / 2,          // Gravoty angle ( = PI / 2)
+            opacity: 1,                         // Opacity of rain drops
+                                                // Defaults to 1
+            blur: 10,                           // Defines blur due to rain effect
+                                                // Defaults to 10
+            resize: true,                       // Enable or disable handling resize events
+                                                // Defaults to 'true'
+            gravity: true,                      // Enable or disable gravity
+                                                // Defaults to 'true'
+            reflections: true,                  // Enable or disable reclections inside droplets
+                                                // Defaults to 'true'
+            fill: '#8ED6FF',                    // Fill style if reflections are disabled
+                                                // Defaults to '#8ED6FF'
+            collisions: true,                   // Enable or disable collisions
+                                                // Defaults to 'true'
+            gravityThreshold: 3,                // Threshold for the gravity function
+                                                // Defaults to 3
+            gravityAngle: Math.PI / 2,          // Gravity angle
+                                                // Defaults to PI / 2
             gravityAngleVariance: 0,
             reflectionScaledownFactor: 5,
             reflectionDropMappingWidth: 50,

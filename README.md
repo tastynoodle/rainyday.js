@@ -14,8 +14,8 @@ For demos and more information see the [project page](http://maroslaw.github.io/
 ```js
 rd = new RainyDay()
     .rect(10, 10, window.innerWidth / 2, window.innerHeight / 2) // Destination rectangle
-    .img(image) // 
-    .rain(
+    .img(image) // id of the image DOM element or image URL of the image to be used
+    .rain( // execute with presents
     [
         [3, 3, 0.88], 
         [5, 5, 0.9], 

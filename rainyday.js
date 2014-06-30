@@ -1,5 +1,4 @@
-function RainyDay(options, canvas) {
-	this.drops = [];
+function RainyDay() {
 }
 
 /**

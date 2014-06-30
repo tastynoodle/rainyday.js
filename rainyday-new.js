@@ -339,7 +339,7 @@ function RainyDay(config) {
 		}
 	};
 
-	this._resized = function(e) {
+	this._resized = function() {
 		// TODO resize handler
 	};
 

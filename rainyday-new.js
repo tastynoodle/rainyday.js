@@ -98,6 +98,7 @@ function RainyDay(config) {
 		this.domParent.style.padding = 0;
 		this.domParent.style.top = x + 'px';
 		this.domParent.style.left = y + 'px';
+		this.domParent.style.zIndex = z;
 		this.domParent.className = 'rd-div';
 		this.domParent.width = w;
 		this.domParent.height = h;

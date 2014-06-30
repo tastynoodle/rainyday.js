@@ -47,6 +47,7 @@ function RainyDay(config) {
 		gravity: true,
 		fill: '#8ED6FF',
 		collisions: true,
+		reflections: true,
 		gravityThreshold: 3,
 		gravityAngle: Math.PI / 2,
 		gravityAngleVariance: 0,
@@ -175,6 +176,12 @@ function RainyDay(config) {
 
 		this._reflections();
 
+		for (var i = 0; i < presets.length; i++) {
+			if (!presets[i][3]) {
+				presets[i][3] = -1;
+			}
+		}
+
 		this.presets = presets;
 		this.trail = trail; // TODO get as function
 
@@ -222,6 +229,74 @@ function RainyDay(config) {
 		this.x = x;
 		this.y = y;
 		this.r = (Math.random() * base) + min;
+
+		this.draw = function(context, reflection) {
+			context.save();
+			context.beginPath();
+
+			var orgR = this.r;
+			this.r = 0.95 * this.r;
+			if (this.r < 3) {
+				context.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+				context.closePath();
+			} else if (this.colliding || this.yspeed > 2) {
+				if (this.colliding) {
+					var collider = this.colliding;
+					this.r = 1.001 * (this.r > collider.r ? this.r : collider.r);
+					this.x += (collider.x - this.x);
+					this.colliding = null;
+				}
+
+				var yr = 1 + 0.1 * this.yspeed;
+				context.moveTo(this.x - this.r / yr, this.y);
+				context.bezierCurveTo(this.x - this.r, this.y - this.r * 2, this.x + this.r, this.y - this.r * 2, this.x + this.r / yr, this.y);
+				context.bezierCurveTo(this.x + this.r, this.y + yr * this.r, this.x - this.r, this.y + yr * this.r, this.x - this.r / yr, this.y);
+			} else {
+				context.arc(this.x, this.y, this.r * 0.9, 0, Math.PI * 2, true);
+				context.closePath();
+			}
+
+			context.clip();
+
+			this.r = orgR;
+
+			if (reflection) {
+				reflection(this);
+			}
+
+			context.restore();
+		};
+
+		this.clear = function(context, force) {
+			context.clearRect(this.x - this.r - 1, this.y - this.r - 2, 2 * this.r + 2, 2 * this.r + 2);
+			if (force) {
+				this.terminate = true;
+				return true;
+			}
+			if ((this.y - this.r > this.rainyday.h) || (this.x - this.r > this.rainyday.w) || (this.x + this.r < 0)) {
+				// over edge so stop this drop
+				return true;
+			}
+			return false;
+		};
+
+		this.animate = function() {
+
+			if (this.terminate) {
+				return false;
+			}
+			var stopped = this.rainyday.gravity(this);
+			if (!stopped && this.rainyday.trail) {
+				this.rainyday.trail(this);
+			}
+			if (this.rainyday.options.enableCollisions) {
+				var collisions = this.rainyday.matrix.update(this, stopped);
+				if (collisions) {
+					this.rainyday.collision(this, collisions);
+				}
+			}
+			return !stopped || this.terminate;
+		};
 	}
 
 	/**
@@ -230,10 +305,36 @@ function RainyDay(config) {
 	this._animation = function() {
 		// TODO animation frame
 
+		var context = this.cGlass.getContext('2d');
 
+		var preset;
+		for (var i = 0; i < this.presets.length; i++) {
+			if (this.presets[i][2] > 1 || this.presets[i][3] === -1) {
+				if (this.presets[i][3] !== 0) {
+					this.presets[i][3]--;
+					for (var y = 0; y < this.presets[i][2]; ++y) {
+						this._drop(new Drop(this, Math.random() * this.width, Math.random() * this.height, this.presets[i][0], this.presets[i][1]));
+					}
+				}
+			} else if (Math.random() < this.presets[i][2]) {
+				preset = this.presets[i];
+				break;
+			}
+		}
+		if (preset) {
+			this._drop(new Drop(this, Math.random() * this.width, Math.random() * this.height, preset[0], preset[1]));
+		}
+		context.drawImage(this.cGlass, 0, 0, this.width, this.height);
 
 		if (!this.paused) {
 			window.requestAnimationFrame(this._animation.bind(this));
+		}
+	};
+
+	this._drop = function(drop) {
+		drop.draw(this.context, this._reflection.bind(this));
+		if (this.gravity && drop.r > this.conf.gravityThreshold) {
+			this.drops.push(drop);
 		}
 	};
 
@@ -243,6 +344,9 @@ function RainyDay(config) {
 	};
 
 	this._reflection = function(drop) {
+		if (!this.conf.reflections) {
+			return;
+		}
 		var sx = Math.max((drop.x - this.conf.reflectionDropMappingWidth) / this.conf.reflectionScaledownFactor, 0);
 		var sy = Math.max((drop.y - this.conf.reflectionDropMappingHeight) / this.conf.reflectionScaledownFactor, 0);
 		var sw = this._positive_min(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
@@ -255,7 +359,7 @@ function RainyDay(config) {
 	this._trail_drops = function(drop) {
 		if (!drop.trailY || drop.y - drop.trailY >= Math.random() * 100 * drop.r) {
 			drop.trailY = drop.y;
-			this.putDrop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
+			this._drop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
 		}
 	};
 
@@ -268,6 +372,9 @@ function RainyDay(config) {
 		this.context.drawImage(this.clearbackground, x, y, drop.r, 2, x, y, drop.r, 2);
 	};
 
+	/**
+	 * Helper function to return a positive min() of two values
+	 */
 	this._positive_min = function(val1, val2) {
 		var result = 0;
 		if (val1 < val2) {

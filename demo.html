@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -19,7 +19,6 @@
                 background-color: #000000;
                 padding: 10px;
                 color: #FFFFFF;
-                opacity: 0.2;
                 font-family: 'Indie Flower', cursive;
             }
             a {
@@ -32,29 +31,46 @@
                 margin-right: 10px;
                 margin-bottom: 10px;
             }
+            .mini {
+                width: 50px;
+                margin: 0px;
+            }
+            .amini {
+                margin: 0;
+            }
         </style>
         <script src="rainyday-new.js"></script>
         <script>
             var rd;
-            function run() {
+            var images = [ 
+                'http://i.imgur.com/N7ETzFO.jpg', 
+                '', 
+                '', 
+                '' 
+            ];
+            function run(num) {
                 var image = new Image();
                 image.onload = function() {
-                    rd = new RainyDay().rect(10, 10, window.innerWidth / 2, window.innerHeight / 2).img(this).rain(
-                        [
-                            [3, 3, 0.88], 
-                            [5, 5, 0.9], 
-                            [6, 2, 1] 
-                        ]
-                    );
+                    if (rd) {
+                        rd.img(this);
+                    } else {
+                        rd = new RainyDay().rect(30, 30, window.innerWidth / 2, window.innerHeight / 2).img(this).rain(
+                            [
+                                [3, 3, 0.88], 
+                                [5, 5, 0.9], 
+                                [6, 2, 1] 
+                            ]
+                        );
+                    }
                 };
                 image.crossOrigin = 'anonymous';
-                image.src = 'http://i.imgur.com/N7ETzFO.jpg';
+                image.src = images[num];
             }
         </script>
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
         <link href='http://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
     </head>
-    <body onload="run()">
+    <body onload="run(0)">
         <div class="controls">
             Demo: RainyDay.js<br/><hr/>
             <a href="javascript:rd.start();" title="Start animation"><i class="fa fa-play"></i></a>
@@ -63,8 +79,13 @@
             <a href="javascript:rd.rect();" title="Resize to element"><i class="fa fa-compress"></i></a>
             <a href="javascript:rd.background();" title="Set as background"><i class="fa fa-expand"></i></a>
             <br/><hr/>
-            <input type="checkbox" checked="true">reflections</input><br/>
+            <a class="amini" href="javascript:run(0);" title="Image 1"><img src="http://maroslaw.github.io/rainyday.js/img/dm1.jpg" class="mini" /></a>
+            <a class="amini" href="javascript:run(1);" title="Image 2"><img src="http://maroslaw.github.io/rainyday.js/img/dm2.jpg" class="mini" /></a>
+            <a class="amini" href="javascript:run(2);" title="Image 3"><img src="http://maroslaw.github.io/rainyday.js/img/dm3.jpg" class="mini" /></a>
+            <a class="amini" href="javascript:run(3);" title="Image 4"><img src="http://maroslaw.github.io/rainyday.js/img/dm4.jpg" class="mini" /></a>
+            <br/><hr/>
             <input type="checkbox" checked="true">gravity</input><br/>
+            <input type="checkbox" checked="true">collisions</input>
         </div>
     </body>
 </html>

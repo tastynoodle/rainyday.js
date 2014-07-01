@@ -45,9 +45,7 @@ function RainyDay(config) {
 		blur: 10,
 		resize: true,
 		gravity: true,
-		fill: '#8ED6FF',
 		collisions: true,
-		reflections: true,
 		gravityThreshold: 3,
 		gravityAngle: Math.PI / 2,
 		gravityAngleVariance: 0,
@@ -64,12 +62,11 @@ function RainyDay(config) {
 			}
 		}
 	}
+	this.initialized = false;
 	this.isBackground = false;
 	this.canvasOk = false;
 	this.imageOk = false;
 	this.paused = true;
-
-	this.drop = null;
 
 	this.rect = function(x, y, w, h, z, parent) {
 		if (this.canvasOk) {
@@ -156,17 +153,17 @@ function RainyDay(config) {
 		if (image instanceof Image) {
 			this.image = image;
 		} else {
-			if (image.substring(0, 4) === 'http') {
-				// TODO loading URLs
-				this.image = document.getElementById(image);
-			} else {
-				this.image = document.getElementById(image);
-				if (!this.image) {
-					throw 'Invalid <img> element id (' + image + ')';
-				}
+			this.image = document.getElementById(image);
+			if (!this.image) {
+				throw 'Invalid <img> element id (' + image + ')';
 			}
 		}
 		this.imageOk = true;
+
+		if (this.initialized) {
+			// TODO reload existing canvas contents
+		}
+
 		return this;
 	};
 
@@ -178,7 +175,7 @@ function RainyDay(config) {
 			throw 'Source image has not been configured correctly';
 		}
 
-		this._reflections();
+		this.pReflections();
 
 		for (var i = 0; i < presets.length; i++) {
 			if (!presets[i][3]) {
@@ -189,7 +186,9 @@ function RainyDay(config) {
 		this.presets = presets;
 		this.trail = trail; // TODO get as function
 
-		this.drop = new Drop(0.5, 0, 3, 4);
+		this.drops.push(new Drop(20, 20, 3, 4));
+
+		this.initialized = true;
 
 		return this.start();
 	};
@@ -202,7 +201,7 @@ function RainyDay(config) {
 			return;
 		}
 		this.paused = false;
-		window.requestAnimationFrame(this._animation.bind(this));
+		window.requestAnimationFrame(this.pAnimation.bind(this));
 		return this;
 	};
 
@@ -223,6 +222,7 @@ function RainyDay(config) {
 	this.stop = function() {
 		// TODO stop animation and free memory
 		this.paused = true;
+		this.initialized = false;
 		return this;
 	};
 
@@ -300,54 +300,36 @@ function RainyDay(config) {
 	/**
 	 * Render animation frame
 	 */
-	this._animation = function() {
-		var context = this.cGlass.getContext('2d');
-		context.clearRect(0, 0, this.width, this.height);
-		var preset;
-		for (var i = 0; i < this.presets.length; i++) {
-			if (this.presets[i][2] > 1 || this.presets[i][3] === -1) {
-				if (this.presets[i][3] !== 0) {
-					this.presets[i][3]--;
-					for (var y = 0; y < this.presets[i][2]; ++y) {
-						this._drop(new Drop(this, Math.random() * this.width, Math.random() * this.height, this.presets[i][0], this.presets[i][1]));
-					}
-				}
-			} else if (Math.random() < this.presets[i][2]) {
-				preset = this.presets[i];
-				break;
-			}
-		}
-		if (preset) {
-			this._drop(new Drop(this, Math.random() * this.width, Math.random() * this.height, preset[0], preset[1]));
-		}
+	this.pAnimation = function() {
 
-		var fReflections = this._reflection.bind(this);
+		// TODO preset handling
+
+		var fReflection = this.pReflection.bind(this);
+		var fTrail = this.pTrailSmudge.bind(this);
 		for (var i = 0; i < this.drops.length; ++i) {
 			var drop = this.drops[i];
-			drop.clear(this.context, false, this.width, this.height);
-			drop.animate(function() {}, function() {});
-			drop.draw(this.context, fReflections);
+			if (this.pGravity(drop)) {
+				// TODO remove drop
+			}
+			drop.draw(this.context, fReflection);
 		}
 
 		if (!this.paused) {
-			window.requestAnimationFrame(this._animation.bind(this));
+			window.requestAnimationFrame(this.pAnimation.bind(this));
 		}
 	};
 
-	this._drop = function(drop) {
-		if (this.conf.gravity && drop.r > this.conf.gravityThreshold) {
-			this.drops.push(drop);
-		}
+	this.pDrop = function(drop) {
+		//TODO if (this.conf.gravity && drop.r > this.conf.gravityThreshold) {
+		this.drops.push(drop);
+		//}
 	};
 
-	this._resized = function() {
+	this.pResized = function() {
 		// TODO resize handler
 	};
 
-	this._reflection = function(drop) {
-		if (!this.conf.reflections) {
-			return;
-		}
+	this.pReflection = function(drop) {
 		var sx = Math.max((drop.x - this.conf.reflectionDropMappingWidth) / this.conf.reflectionScaledownFactor, 0);
 		var sy = Math.max((drop.y - this.conf.reflectionDropMappingHeight) / this.conf.reflectionScaledownFactor, 0);
 		var sw = this.pPositiveMin(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
@@ -360,7 +342,7 @@ function RainyDay(config) {
 	this.pTrailDrops = function(drop) {
 		if (!drop.trailY || drop.y - drop.trailY >= Math.random() * 100 * drop.r) {
 			drop.trailY = drop.y;
-			this._drop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
+			this.pDrop(new Drop(this, drop.x + (Math.random() * 2 - 1) * Math.random(), drop.y - drop.r - 5, Math.ceil(drop.r / 5), 0));
 		}
 	};
 
@@ -371,6 +353,17 @@ function RainyDay(config) {
 			return;
 		}
 		this.context.drawImage(this.clearbackground, x, y, drop.r, 2, x, y, drop.r, 2);
+	};
+
+	this.pGravity = function(drop) {
+		if (drop.clear(this.context, false, this.width, this.height)) {
+			return true;
+		}
+
+		// TODO implementation
+		drop.y += 0.5;
+
+		return false;
 	};
 
 	/**
@@ -397,7 +390,7 @@ function RainyDay(config) {
 	/**
 	 * Set up helper canvas objects for
 	 */
-	this._reflections = function() {
+	this.pReflections = function() {
 		if (this.background) {
 			delete this.background;
 			this.background = null;
@@ -424,7 +417,7 @@ function RainyDay(config) {
 		context.drawImage(this.image, 0, 0, this.width, this.height);
 
 		if (!isNaN(this.conf.blur) && this.conf.blur >= 1) {
-			this._stackBlurCanvasRGB(this.width, this.height, this.conf.blur);
+			this.pStackBlurCanvasRGB(this.width, this.height, this.conf.blur);
 		}
 
 		this.cBack.getContext('2d').drawImage(this.background, 0, 0, this.width, this.height);
@@ -432,11 +425,10 @@ function RainyDay(config) {
 		this.reflected = document.createElement('canvas');
 		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
 		this.reflected.height = this.height / this.conf.reflectionScaledownFactor;
-		// var ctx = this.reflected.getContext('2d');
-		// TODO something seems to be missing here?
+		this.reflected.getContext('2d').drawImage(this.image, 0, 0, this.width, this.height, 0, 0, this.reflected.width, this.reflected.height);
 	};
 
-	this._stackBlurCanvasRGB = function(width, height, radius) {
+	this.pStackBlurCanvasRGB = function(width, height, radius) {
 
 		function BlurStack() {
 			this.r = 0;

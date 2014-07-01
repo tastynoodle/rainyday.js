@@ -28,7 +28,7 @@ If you want to render it as a page background use something like this
 ```js
 rd = new RainyDay()
     .cover() // Use as page background
-    .img('http://i.imgur.com/U1Tqqdw.jpg') // you can use image URL here as well
+    .img('image') // you can use id of the img element here as well
     .rain( // execute with presets
     [
         [3, 3, 0.5], // add drops size 3+(0,3) with 50% probability
@@ -42,24 +42,20 @@ In order to customize the configuration of the script pass an object overriding 
 rd = new RainyDay
     (
         {
-            opacity: 1,                         // Opacity of rain drops
-                                                // Defaults to 1
-            blur: 10,                           // Defines blur due to rain effect
-                                                // Defaults to 10
-            resize: true,                       // Enable or disable handling resize events
-                                                // Defaults to 'true'
-            gravity: true,                      // Enable or disable gravity
-                                                // Defaults to 'true'
-            reflections: true,                  // Enable or disable reclections inside droplets
-                                                // Defaults to 'true'
-            fill: '#8ED6FF',                    // Fill style if reflections are disabled
-                                                // Defaults to '#8ED6FF'
-            collisions: true,                   // Enable or disable collisions
-                                                // Defaults to 'true'
-            gravityThreshold: 3,                // Threshold for the gravity function
-                                                // Defaults to 3
-            gravityAngle: Math.PI / 2,          // Gravity angle
-                                                // Defaults to PI / 2
+            opacity: 1,                     // Opacity of rain drops
+                                            // Defaults to 1
+            blur: 10,                       // Defines blur due to rain effect
+                                            // Defaults to 10
+            resize: true,                   // Enable or disable handling resize events
+                                            // Defaults to 'true'
+            gravity: true,                  // Enable or disable gravity
+                                            // Defaults to 'true'
+            collisions: true,               // Enable or disable collisions
+                                            // Defaults to 'true'
+            gravityThreshold: 3,            // Threshold for the gravity function
+                                            // Defaults to 3
+            gravityAngle: Math.PI / 2       // Gravity angle
+                                            // Defaults to PI / 2
             gravityAngleVariance: 0,
             reflectionScaledownFactor: 5,
             reflectionDropMappingWidth: 50,
@@ -67,7 +63,7 @@ rd = new RainyDay
         }
     )
     .cover() // Use as page background
-    .img('http://i.imgur.com/U1Tqqdw.jpg') // script background
+    .img(image1) // script background
     .rain( // execute with presets
     [
         [3, 2, 0.4], // add drops size 3+(0,2) with 40% probability

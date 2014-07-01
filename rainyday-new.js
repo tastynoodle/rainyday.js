@@ -162,6 +162,7 @@ function RainyDay(config) {
 
 		if (this.initialized) {
 			// TODO reload existing canvas contents
+			return this;
 		}
 
 		return this;
@@ -305,12 +306,12 @@ function RainyDay(config) {
 		// TODO preset handling
 
 		var fReflection = this.pReflection.bind(this);
-		var fTrail = this.pTrailSmudge.bind(this);
+		// var fTrail = this.pTrailSmudge.bind(this);
 		for (var i = 0; i < this.drops.length; ++i) {
 			var drop = this.drops[i];
-			if (this.pGravity(drop)) {
-				// TODO remove drop
-			}
+			//if (this.pGravity(drop)) {
+			// TODO remove drop
+			//}
 			drop.draw(this.context, fReflection);
 		}
 

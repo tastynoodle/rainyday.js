@@ -71,3 +71,13 @@ rd = new RainyDay
         [7, 2, 1] // add drops size 7+(0,2) with 50% probability
     ]
 );
+```
+Afterwards you can use the API to control the animation:
+```js
+rd.pause();                 // pause the animation
+rd.start();                 // resume
+rd.cover();                 // make animation full screen
+rd.img('img2');             // load a different image
+rd.rect(0, 0, 100, 100);    // resize to a given rectangle
+rd.stop();                  // stop the animation
+```

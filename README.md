@@ -14,26 +14,26 @@ For demos and more information see the [project page](http://maroslaw.github.io/
 Simple use to render rain on a given rectangle based on a DOM element image:
 ```js
 rd = new RainyDay()
-    .rect(10, 10, window.innerWidth / 2, window.innerHeight / 2) // Destination rect
-    .img(image) // id of the image DOM element or the DOM element itself
-    .rain( // execute with presets
+    .rect(10, 10, 300, 300) // Destination rect
+    .img(image)             // id of the image DOM element or the DOM element itself
+    .rain(                  // execute with presets
     [
-        [3, 3, 0.88], // add drops size 3+(0,3) with 88% probability
-        [5, 5, 0.9], // add drops size 5+(0,5) with 2% probability
-        [6, 2, 1] // add drops size 6+(0,2) with 10% probability
+        [3, 3, 0.88],       // add drops size 3+(0,3) with 88% probability
+        [5, 5, 0.9],        // add drops size 5+(0,5) with 2% probability
+        [6, 2, 1]           // add drops size 6+(0,2) with 10% probability
     ]
 );
 ```
 If you want to render it as a page background use something like this
 ```js
 rd = new RainyDay()
-    .cover() // Use as page background
-    .img('image') // you can use id of the img element here as well
-    .rain( // execute with presets
+    .cover()            // Use as page background
+    .img('image')       // you can use id of the img element
+    .rain(              // execute with presets
     [
-        [3, 3, 0.5], // add drops size 3+(0,3) with 50% probability
-        [7, 2, 0.8], // add drops size 7+(0,2) with 30% probability
-        [9, 2, 1] // add drops size 9+(0,2) with 20% probability
+        [3, 3, 0.5],    // add drops size 3+(0,3) with 50% probability
+        [7, 2, 0.8],    // add drops size 7+(0,2) with 30% probability
+        [9, 2, 1]       // add drops size 9+(0,2) with 20% probability
     ]
 );
 ```
@@ -62,9 +62,9 @@ rd = new RainyDay
             reflectionDropMappingHeight: 50
         }
     )
-    .cover() // Use as page background
-    .img(image1) // script background
-    .rain( // execute with presets
+    .cover()                                // Use as page background
+    .img(image1)                            // script background
+    .rain(                                  // execute with presets
     [
         [3, 2, 0.4], // add drops size 3+(0,2) with 40% probability
         [5, 2, 0.5], // add drops size 5+(0,2) with 10% probability

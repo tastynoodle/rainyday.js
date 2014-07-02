@@ -90,7 +90,7 @@ function RainyDay(config) {
 		this.domParent.appendChild(this.cBack);
 		this.domParent.appendChild(this.cGlass);
 
-		(parent || document.getElementsByTagName('body')[0]).appendChild(this.domParent);
+		(parent || document.body).appendChild(this.domParent);
 
 		this.canvasOk = true;
 	};
@@ -341,6 +341,10 @@ function RainyDay(config) {
 
 		// TODO preset handling
 
+		if (this.stats) {
+			this.stats.begin();
+		}
+
 		var fReflection = this.pReflection.bind(this);
 		// var fTrail = this.pTrailSmudge.bind(this);
 		for (var i = 0; i < this.drops.length; ++i) {
@@ -353,6 +357,10 @@ function RainyDay(config) {
 
 		if (!this.paused) {
 			window.requestAnimationFrame(this.pAnimation.bind(this));
+		}
+
+		if (this.stats) {
+			this.stats.end();
 		}
 	};
 

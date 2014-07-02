@@ -46,12 +46,12 @@ function RainyDay(config) {
 		resize: true,
 		gravity: true,
 		collisions: true,
-		gravityThreshold: 3,
-		gravityAngle: Math.PI / 2,
-		gravityAngleVariance: 0,
-		reflectionScaledownFactor: 5,
-		reflectionDropMappingWidth: 50,
-		reflectionDropMappingHeight: 50
+		threshold: 3,
+		angle: Math.PI / 2,
+		angleVariance: 0,
+		scaledownFactor: 5,
+		reflectionWidth: 50, // TODO not in pixels
+		reflectionHeight: 50 // TODO not in pixels
 	};
 	this.drops = [];
 
@@ -357,7 +357,7 @@ function RainyDay(config) {
 	};
 
 	this.pDrop = function(drop) {
-		//TODO if (this.conf.gravity && drop.r > this.conf.gravityThreshold) {
+		//TODO if (this.conf.gravity && drop.r > this.conf.threshold) {
 		this.drops.push(drop);
 		//}
 	};
@@ -372,10 +372,10 @@ function RainyDay(config) {
 	};
 
 	this.pReflection = function(drop) {
-		var sx = Math.max((drop.x - this.conf.reflectionDropMappingWidth) / this.conf.reflectionScaledownFactor, 0);
-		var sy = Math.max((drop.y - this.conf.reflectionDropMappingHeight) / this.conf.reflectionScaledownFactor, 0);
-		var sw = this.pPositiveMin(this.conf.reflectionDropMappingWidth * 2 / this.conf.reflectionScaledownFactor, this.reflected.width - sx);
-		var sh = this.pPositiveMin(this.conf.reflectionDropMappingHeight * 2 / this.conf.reflectionScaledownFactor, this.reflected.height - sy);
+		var sx = Math.max((drop.x - this.conf.reflectionWidth) / this.conf.scaledownFactor, 0);
+		var sy = Math.max((drop.y - this.conf.reflectionHeight) / this.conf.scaledownFactor, 0);
+		var sw = this.pPositiveMin(this.conf.reflectionWidth * 2 / this.conf.scaledownFactor, this.reflected.width - sx);
+		var sh = this.pPositiveMin(this.conf.reflectionHeight * 2 / this.conf.scaledownFactor, this.reflected.height - sy);
 		var dx = Math.max(drop.x - 1.1 * drop.r, 0);
 		var dy = Math.max(drop.y - 1.1 * drop.r, 0);
 		this.context.drawImage(this.reflected, sx, sy, sw, sh, dx, dy, drop.r * 2, drop.r * 2);
@@ -466,8 +466,8 @@ function RainyDay(config) {
 		this.cBack.getContext('2d').drawImage(this.background, 0, 0, this.width, this.height);
 
 		this.reflected = document.createElement('canvas');
-		this.reflected.width = this.width / this.conf.reflectionScaledownFactor;
-		this.reflected.height = this.height / this.conf.reflectionScaledownFactor;
+		this.reflected.width = this.width / this.conf.scaledownFactor;
+		this.reflected.height = this.height / this.conf.scaledownFactor;
 		this.reflected.getContext('2d').drawImage(this.image, 0, 0, this.width, this.height, 0, 0, this.reflected.width, this.reflected.height);
 	};
 

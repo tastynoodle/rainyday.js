@@ -42,29 +42,29 @@ In order to customize the configuration of the script pass an object overriding 
 rd = new RainyDay
     (
         {
-            opacity: 1,                     // Opacity of rain drops
-                                            // Defaults to 1
-            blur: 10,                       // Defines blur due to rain effect
-                                            // Defaults to 10
-            resize: true,                   // Enable or disable handling resize events
-                                            // Defaults to 'true'
-            gravity: true,                  // Enable or disable gravity
-                                            // Defaults to 'true'
-            collisions: true,               // Enable or disable collisions
-                                            // Defaults to 'true'
-            gravityThreshold: 3,            // Threshold for the gravity function
-                                            // Defaults to 3
-            gravityAngle: Math.PI / 2       // Gravity angle
-                                            // Defaults to PI / 2
-            gravityAngleVariance: 0,
-            reflectionScaledownFactor: 5,
-            reflectionDropMappingWidth: 50,
-            reflectionDropMappingHeight: 50
+            opacity: 1,             // Opacity of rain drops
+                                    // Defaults to 1
+            blur: 10,               // Defines blur due to rain effect
+                                    // Defaults to 10
+            resize: true,           // Enable or disable handling resize events
+                                    // Defaults to 'true'
+            gravity: true,          // Enable or disable gravity
+                                    // Defaults to 'true'
+            collisions: true,       // Enable or disable collisions
+                                    // Defaults to 'true'
+            threshold: 3,           // Threshold for the gravity function
+                                    // Defaults to 3
+            angle: Math.PI / 2      // Gravity angle
+                                    // Defaults to PI / 2
+            angleVariance: 0,
+            scaledownFactor: 5,
+            reflectionWidth: 50,
+            reflectionHeight: 50
         }
     )
-    .cover()                                // Use as page background
-    .img(image1)                            // script background
-    .rain(                                  // execute with presets
+    .cover()                        // Use as page background
+    .img(image1)                    // script background
+    .rain(                          // execute with presets
     [
         [3, 2, 0.4], // add drops size 3+(0,2) with 40% probability
         [5, 2, 0.5], // add drops size 5+(0,2) with 10% probability

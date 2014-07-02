@@ -205,7 +205,7 @@ function RainyDay(config) {
 		return this;
 	};
 
-	this.rain = function(presets, trail) {
+	this.rain = function(presets) { // TODO , trail)
 		if (!this.canvasOk) {
 			throw 'Canvas has not been configured correctly';
 		}

@@ -198,8 +198,7 @@ function RainyDay(config) {
 		this.imageOk = true;
 
 		if (this.initialized) {
-			// TODO reload existing canvas contents
-			return this;
+			this.pReflections();
 		}
 
 		return this;

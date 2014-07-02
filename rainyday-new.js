@@ -68,83 +68,120 @@ function RainyDay(config) {
 	this.imageOk = false;
 	this.paused = true;
 
-	this.rect = function(x, y, w, h, z, parent) {
-		if (this.canvasOk) {
-			throw 'Canvas has already been set up';
-		}
-
+	this.pSetup = function(z, parent) {
 		this.cBack = document.createElement('canvas');
 		this.cBack.style.position = 'absolute';
 		this.cBack.style.top = 0;
 		this.cBack.style.left = 0;
 		this.cBack.style.zIndex = 0;
-		this.cBack.width = w;
-		this.cBack.height = h;
 
 		this.cGlass = document.createElement('canvas');
 		this.cGlass.style.position = 'absolute';
 		this.cGlass.style.top = 0;
 		this.cGlass.style.left = 0;
 		this.cGlass.style.zIndex = 1;
-		this.cGlass.width = w;
-		this.cGlass.height = h;
-		this.context = this.cGlass.getContext('2d');
 
 		this.domParent = document.createElement('div');
 		this.domParent.style.position = 'relative';
 		this.domParent.style.padding = 0;
+
+		this.domParent.style.zIndex = z;
+		this.domParent.className = 'rd-div';
+		this.domParent.appendChild(this.cBack);
+		this.domParent.appendChild(this.cGlass);
+
+		(parent || document.getElementsByTagName('body')[0]).appendChild(this.domParent);
+
+		this.canvasOk = true;
+	};
+
+	this.rect = function(x, y, w, h, z, parent) {
+		if (!this.initialized) {
+			this.pSetup(z, parent);
+		}
+
+		this.isBackground = false;
+
+		this.cBack.width = w;
+		this.cBack.height = h;
+
+		this.cGlass.width = w;
+		this.cGlass.height = h;
+		this.context = this.cGlass.getContext('2d');
+
 		this.domParent.style.top = x + 'px';
 		this.domParent.style.left = y + 'px';
 		this.domParent.style.zIndex = z;
 		this.domParent.className = 'rd-div';
 		this.domParent.width = w;
 		this.domParent.height = h;
-		this.domParent.appendChild(this.cBack);
-		this.domParent.appendChild(this.cGlass);
-
-		(parent || document.getElementsByTagName('body')[0]).appendChild(this.domParent);
 
 		this.width = w;
 		this.height = h;
-		this.canvasOk = true;
+
+		if (this.image) {
+			this.img(this.image);
+			this.pReflections();
+		}
+
 		return this;
 	};
 
 	this.cover = function() {
-		if (this.canvasOk) {
-			throw 'Canvas has already been set up';
+		if (this.isBackground) {
+			return;
+		}
+		if (!this.initialized) {
+			this.pSetup(-100);
 		}
 
-		var canvas = document.createElement('canvas');
-
-		// TODO canvas location
-
-		this.canvas = canvas;
-		this.domParent = document.getElementsByTagName('body')[0];
-		this.domParent.appendChild(canvas);
-		this.canvasOk = true;
 		this.isBackground = true;
+
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+
+		this.cBack.width = w;
+		this.cBack.height = h;
+
+		this.cGlass.width = w;
+		this.cGlass.height = h;
+		this.context = this.cGlass.getContext('2d');
+
+		this.domParent.style.top = 0;
+		this.domParent.style.left = 0;
+		this.domParent.className = 'rd-div';
+		this.domParent.width = '100%';
+		this.domParent.height = '100%';
+
+		this.width = w;
+		this.height = h;
+
+		if (this.image) {
+			this.img(this.image);
+			this.pReflections();
+		}
 
 		// handle resize events
 		if (this.conf.resize) {
 			if (window.attachEvent) {
 				window.attachEvent('onresize', function() {
-					this.resized();
+					this.pResized();
 				}.bind(this));
 				window.attachEvent('onorientationchange', function() {
-					this.resized();
+					this.pResized();
 				}.bind(this));
 			} else if (window.addEventListener) {
 				window.addEventListener('resize', function() {
-					this.resized();
+					this.pResized();
 				}.bind(this), true);
 				window.addEventListener('orientationchange', function() {
-					this.resized();
+					this.pResized();
 				}.bind(this), true);
 			} else {
 				this.doSizeCheck = true;
 			}
 		}
+
 		return this;
 	};
 
@@ -178,7 +215,7 @@ function RainyDay(config) {
 
 		this.pReflections();
 
-		for (var i = 0; i < presets.length; i++) {
+		/*for (var i = 0; i < presets.length; i++) {
 			if (!presets[i][3]) {
 				presets[i][3] = -1;
 			}
@@ -187,7 +224,7 @@ function RainyDay(config) {
 		this.presets = presets;
 		this.trail = trail; // TODO get as function
 
-		this.drops.push(new Drop(20, 20, 3, 4));
+		this.drops.push(new Drop(20, 20, 3, 4));*/
 
 		this.initialized = true;
 
@@ -327,7 +364,12 @@ function RainyDay(config) {
 	};
 
 	this.pResized = function() {
-		// TODO resize handler
+		if (this.isBackground) {
+			this.pause();
+			this.isBackground = false;
+			this.cover();
+			this.start();
+		}
 	};
 
 	this.pReflection = function(drop) {
@@ -394,16 +436,17 @@ function RainyDay(config) {
 	this.pReflections = function() {
 		if (this.background) {
 			delete this.background;
+			delete this.clearbackground;
+			delete this.reflected;
 			this.background = null;
+			this.clearbackground = null;
+			this.reflected = null;
 		}
+
 		this.background = document.createElement('canvas');
 		this.background.width = this.width;
 		this.background.height = this.height;
 
-		if (this.clearbackground) {
-			delete this.clearbackground;
-			this.clearbackground = null;
-		}
 		this.clearbackground = document.createElement('canvas');
 		this.clearbackground.width = this.width;
 		this.clearbackground.height = this.height;

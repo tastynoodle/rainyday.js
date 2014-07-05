@@ -221,9 +221,9 @@ function RainyDay(config) {
 		}
 
 		this.presets = presets;
-		this.trail = trail; // TODO get as function
+		this.trail = trail; // TODO get as function*/
 
-		this.drops.push(new Drop(20, 20, 3, 4));*/
+		this.drops.push(new Drop(20, 20, 7));
 
 		this.initialized = true;
 
@@ -266,41 +266,18 @@ function RainyDay(config) {
 	/**
 	 * To represent a single droplet
 	 */
-	function Drop(x, y, min, base) {
+	function Drop(x, y, r) {
 		this.x = x;
 		this.y = y;
-		this.r = (Math.random() * base) + min;
+		this.r = r;
 		this.terminate = false;
 
 		this.draw = function(context, reflection) {
 			context.save();
 			context.beginPath();
-
-			var orgR = this.r;
-			this.r = 0.95 * this.r;
-			if (this.r < 3) {
-				context.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-				context.closePath();
-			} else if (this.colliding || this.yspeed > 2) {
-				if (this.colliding) {
-					var collider = this.colliding;
-					this.r = 1.001 * (this.r > collider.r ? this.r : collider.r);
-					this.x += (collider.x - this.x);
-					this.colliding = null;
-				}
-
-				var yr = 1 + 0.1 * this.yspeed;
-				context.moveTo(this.x - this.r / yr, this.y);
-				context.bezierCurveTo(this.x - this.r, this.y - this.r * 2, this.x + this.r, this.y - this.r * 2, this.x + this.r / yr, this.y);
-				context.bezierCurveTo(this.x + this.r, this.y + yr * this.r, this.x - this.r, this.y + yr * this.r, this.x - this.r / yr, this.y);
-			} else {
-				context.arc(this.x, this.y, this.r * 0.9, 0, Math.PI * 2, true);
-				context.closePath();
-			}
-
+			context.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+			context.closePath();
 			context.clip();
-
-			this.r = orgR;
 
 			if (reflection) {
 				reflection(this);

@@ -60,7 +60,6 @@
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.left = '5px';
                 stats.domElement.style.bottom = '5px';
-                stats.domElement.style.zIndex = 100;
                 document.body.appendChild(stats.domElement);
 
                 var image = new Image();
@@ -68,7 +67,7 @@
                     if (rd) {
                         rd.img(this);
                     } else {
-                        rd = new RainyDay().rect(30, 30, window.innerWidth / 2, window.innerHeight / 2).img(this).rain(
+                        rd = new RainyDay().cover().img(this).rain(
                             [
                                 [3, 3, 0.88], 
                                 [5, 5, 0.9], 

@@ -34,6 +34,9 @@
                 margin-right: 10px;
                 margin-bottom: 10px;
             }
+            input[type="range"] {
+                width: 100%;
+            }
             .mini {
                 width: 50px;
                 margin: 0px;
@@ -99,10 +102,9 @@
             <a class="amini" href="javascript:run(3);" title="Image 4"><img src="http://maroslaw.github.io/rainyday.js/img/dm4.jpg" class="mini" /></a>
             <br/><hr/>
             Intensity:<br/><input id="pintensity" type="range" min="0" max="100" value="50" onchange="javascript:rd.intensity(this.value);" /><br/>
-            Size:<br/><input id="psize" type="range" min="0" max="100" value="40" onchange="javascript:rd.size(this.value);" /><br/>
             Angle:<br/><input id="pangle" type="range" min="0" max="100" value="40" onchange="javascript:rd.angle(this.value);" /><br/>
             <hr/>
-            <input type="checkbox" checked="true">gravity</input><br/>
+            <input type="checkbox" onchange="javascript:rd.gravity(this.checked);">gravity</input><br/>
             <input type="checkbox" checked="true">collisions</input>
             <br/><hr/>Event queue<br/>
             <progress id="events" value="0" max="100"></progress>

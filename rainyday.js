@@ -44,13 +44,14 @@ function RainyDay(config) {
 		opacity: 1,
 		blur: 10,
 		resize: true,
-		gravity: false,
+		gravity: true,
 		intensity: 50,
 		collisions: true,
 		threshold: 3,
 		angle: Math.PI / 2,
 		angleVariance: 0,
 		scaledownFactor: 5,
+		speed: 20,
 		reflectionSize: 50 // TODO not in pixels
 	};
 	this.drops = [];
@@ -265,6 +266,16 @@ function RainyDay(config) {
 		}
 	};
 
+	this.speed = function(s) {
+		if (s < 0) {
+			this.conf.speed = 0;
+		} else if (s > 100) {
+			this.conf.speed = 100;
+		} else {
+			this.conf.speed = s;
+		}
+	};
+
 	this.pFrame = function() {
 		window.requestAnimationFrame(this.pAnimation.bind(this));
 	};
@@ -289,6 +300,7 @@ function RainyDay(config) {
 			// var fTrail = this.pTrailSmudge.bind(this);
 			for (var i = 0; i < this.drops.length; ++i) {
 				var drop = this.drops[i];
+				this.pGravity(drop);
 				//if (this.pGravity(drop)) {
 				// TODO remove drop
 				//}
@@ -354,7 +366,7 @@ function RainyDay(config) {
 		}
 
 		// TODO implementation
-		drop.y += 5;
+		drop.y += this.conf.speed * 0.00003;
 
 		return false;
 	};

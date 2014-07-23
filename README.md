@@ -78,6 +78,10 @@ rd.pause();                 // pause the animation
 rd.start();                 // resume
 rd.cover();                 // make animation full screen
 rd.img('img2');             // load a different image
+rd.intensity(33);           // control rain intensity (0-100)
+rd.gravity(false);          // disable gravity function
+rd.gravity();               // turn gravity back on
+rd.speed(50);               // control rain speed (0-100)
 rd.rect(0, 0, 100, 100);    // resize to a given rectangle
 rd.stop();                  // stop the animation
 ```

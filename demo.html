@@ -103,8 +103,9 @@
             <br/><hr/>
             Intensity:<br/><input id="pintensity" type="range" min="0" max="100" value="50" onchange="javascript:rd.intensity(this.value);" /><br/>
             Angle:<br/><input id="pangle" type="range" min="0" max="100" value="40" onchange="javascript:rd.angle(this.value);" /><br/>
+            Speed:<br/><input id="pgravity" type="range" min="0" max="100" value="40" onchange="javascript:rd.speed(this.value);" /><br/>
             <hr/>
-            <input type="checkbox" onchange="javascript:rd.gravity(this.checked);">gravity</input><br/>
+            <input type="checkbox" checked onchange="javascript:rd.gravity(this.checked);">gravity</input><br/>
             <input type="checkbox" checked onchange="javascript:rd.collisions(this.checked);">collisions</input>
             <br/><hr/>Event queue<br/>
             <progress id="events" value="0" max="100"></progress>

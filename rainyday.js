@@ -251,7 +251,6 @@ function RainyDay(config) {
 		} else {
 			this.conf.intensity = 100 - n;
 		}
-		console.log(this.conf.intensity);
 	};
 
 	this.gravity = function(g) {

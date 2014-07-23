@@ -45,6 +45,7 @@ function RainyDay(config) {
 		blur: 10,
 		resize: true,
 		gravity: false,
+		intensity: 50,
 		collisions: true,
 		threshold: 3,
 		angle: Math.PI / 2,
@@ -54,13 +55,6 @@ function RainyDay(config) {
 	};
 	this.drops = [];
 
-	if (config) {
-		for (var s in this.conf) {
-			if (typeof config[s] !== 'undefined') {
-				this.conf[s] = config[s];
-			}
-		}
-	}
 	this.initialized = false;
 	this.isBackground = false;
 	this.canvasOk = false;
@@ -211,7 +205,6 @@ function RainyDay(config) {
 			throw 'Source image has not been configured correctly';
 		}
 		this.pNewReflections();
-		this.drops.push(new Drop(0.3, 0.3, 7));
 		this.initialized = true;
 		return this.start();
 	};
@@ -249,12 +242,17 @@ function RainyDay(config) {
 		return this;
 	};
 
-	this.pFrame = function() {
-		window.requestAnimationFrame(this.pAnimation.bind(this));
+	this.intensity = function(n) {
+		if (n < 0) {
+			this.conf.intensity = 100;
+		} else if (n > 100) {
+			this.conf.intensity = 0;
+		} else {
+			this.conf.intensity = 100 - n;
+		}
 	};
 
 	this.gravity = function(g) {
-		console.log(g);
 		var oldG = this.conf.gravity;
 		if (typeof g === 'undefined') {
 			this.conf.gravity = !oldG;
@@ -266,78 +264,41 @@ function RainyDay(config) {
 		}
 	};
 
-	/**
-	 * To represent a single droplet
-	 */
-	function Drop(x, y, r) {
-		this.x = x;
-		this.y = y;
-		this.r = r;
-		this.terminate = false;
-
-		this.draw = function(context, reflection) {
-			context.save();
-			context.beginPath();
-			context.arc(this.x * context.canvas.width, this.y * context.canvas.height, this.r, 0, Math.PI * 2, true);
-			context.closePath();
-			context.clip();
-
-			if (reflection) {
-				reflection(this);
-			}
-
-			context.restore();
-		};
-
-		this.clear = function(context, force, width, height) {
-			context.clearRect(this.x - this.r - 1, this.y - this.r - 2, 2 * this.r + 2, 2 * this.r + 2);
-			if (force) {
-				this.terminate = true;
-				return true;
-			}
-			if ((this.y - this.r > height) || (this.x - this.r > width) || (this.x + this.r < 0)) {
-				// over edge so stop this drop
-				return true;
-			}
-			return false;
-		};
-
-		this.animate = function(gravity, trail) {
-			if (this.terminate) {
-				return false;
-			}
-			var stopped = gravity(this);
-			if (!stopped && trail) {
-				trail(this);
-			}
-			return !stopped || this.terminate;
-		};
-	}
+	this.pFrame = function() {
+		window.requestAnimationFrame(this.pAnimation.bind(this));
+	};
 
 	/**
 	 * Render animation frame
 	 */
 	this.pAnimation = function() {
-		console.log("frame");
-
-		// TODO preset handling
 
 		if (this.stats) {
 			this.stats.begin();
 		}
 
 		var fReflection = this.pReflection.bind(this);
-		// var fTrail = this.pTrailSmudge.bind(this);
-		for (var i = 0; i < this.drops.length; ++i) {
-			var drop = this.drops[i];
-			//if (this.pGravity(drop)) {
-			// TODO remove drop
-			//}
-			drop.draw(this.context, fReflection);
+		if (this.conf.intensity > 0) {
+			if ((Math.random() * 100) > this.conf.intensity) {
+				var drop = new Drop(Math.random(), Math.random(), Math.random() * 5);
+				this.pDrop(drop);
+				drop.draw(this.context, fReflection);
+			}
 		}
 
-		if (!this.paused && this.conf.gravity) {
-			window.requestAnimationFrame(this.pAnimation.bind(this));
+		if (this.conf.gravity) {
+			// var fTrail = this.pTrailSmudge.bind(this);
+			for (var i = 0; i < this.drops.length; ++i) {
+				var drop = this.drops[i];
+				//if (this.pGravity(drop)) {
+				// TODO remove drop
+				//}
+				drop.draw(this.context, fReflection);
+			}
+		}
+
+		if (!this.paused) {
+			this.pFrame();
 		}
 
 		if (this.stats) {
@@ -363,8 +324,10 @@ function RainyDay(config) {
 	this.pReflection = function(drop) {
 		var dtx = drop.x * this.width;
 		var dty = drop.y * this.height;
-		var sx = Math.max((dtx - this.conf.reflectionSize) / this.conf.scaledownFactor, 0);
-		var sy = Math.max((dty - this.conf.reflectionSize) / this.conf.scaledownFactor, 0);
+		var dx = drop.x * this.conf.reflectionSize;
+		var dy = drop.y * this.conf.reflectionSize;
+		var sx = Math.max((dx - this.conf.reflectionSize) / this.conf.scaledownFactor, 0);
+		var sy = Math.max((dy - this.conf.reflectionSize) / this.conf.scaledownFactor, 0);
 		var sw = this.pPositiveMin(this.conf.reflectionSize * 2 / this.conf.scaledownFactor, this.reflected.width - sx);
 		var sh = this.pPositiveMin(this.conf.reflectionSize * 2 / this.conf.scaledownFactor, this.reflected.height - sy);
 		this.context.drawImage(this.reflected, sx, sy, sw, sh, Math.max(dtx - drop.r, 0), Math.max(dty - drop.r, 0), drop.r * 2, drop.r * 2);
@@ -392,7 +355,7 @@ function RainyDay(config) {
 		}
 
 		// TODO implementation
-		drop.y += 0.5;
+		drop.y += 5;
 
 		return false;
 	};
@@ -720,6 +683,54 @@ function RainyDay(config) {
 		context.putImageData(imageData, 0, 0);
 
 	};
+
+	/**
+	 * To represent a single droplet
+	 */
+	function Drop(x, y, r) {
+		this.x = x;
+		this.y = y;
+		this.r = r;
+		this.terminate = false;
+
+		this.draw = function(context, reflection) {
+			context.save();
+			context.beginPath();
+			context.arc(this.x * context.canvas.width, this.y * context.canvas.height, this.r, 0, Math.PI * 2, true);
+			context.closePath();
+			context.clip();
+
+			if (reflection) {
+				reflection(this);
+			}
+
+			context.restore();
+		};
+
+		this.clear = function(context, force, width, height) {
+			context.clearRect(this.x - this.r - 1, this.y - this.r - 2, 2 * this.r + 2, 2 * this.r + 2);
+			if (force) {
+				this.terminate = true;
+				return true;
+			}
+			if ((this.y - this.r > height) || (this.x - this.r > width) || (this.x + this.r < 0)) {
+				// over edge so stop this drop
+				return true;
+			}
+			return false;
+		};
+
+		this.animate = function(gravity, trail) {
+			if (this.terminate) {
+				return false;
+			}
+			var stopped = gravity(this);
+			if (!stopped && trail) {
+				trail(this);
+			}
+			return !stopped || this.terminate;
+		};
+	}
 
 }
 

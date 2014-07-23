@@ -250,6 +250,7 @@ function RainyDay(config) {
 		} else {
 			this.conf.intensity = 100 - n;
 		}
+		console.log(this.conf.intensity);
 	};
 
 	this.gravity = function(g) {
@@ -278,12 +279,10 @@ function RainyDay(config) {
 		}
 
 		var fReflection = this.pReflection.bind(this);
-		if (this.conf.intensity > 0) {
-			if ((Math.random() * 100) > this.conf.intensity) {
-				var drop = new Drop(Math.random(), Math.random(), Math.random() * 5);
-				this.pDrop(drop);
-				drop.draw(this.context, fReflection);
-			}
+		if ((Math.random() * 100) > this.conf.intensity) {
+			var drop = new Drop(Math.random(), Math.random(), Math.random() * 5);
+			this.pDrop(drop);
+			drop.draw(this.context, fReflection);
 		}
 
 		if (this.conf.gravity) {

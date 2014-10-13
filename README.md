@@ -13,7 +13,7 @@ For demos and more information see the [project page](http://maroslaw.github.io/
 
 ```js
 var engine = new RainyDay({
-    element: image,         // Image element
+    image: element,         // Image element
                             // This value is required
     parentElement: someDiv, // Element to be used as a parent for the canvas
                             // If not provided assuming the 'body' element
